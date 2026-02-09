@@ -1,0 +1,38 @@
+# ================================
+# render.yaml — Render Deployment Config
+# ================================
+
+services:
+  - type: web
+    name: mersin-masters-bot
+    runtime: python
+    pythonVersion: 3.13
+    
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: WEBHOOK_URL
+        sync: false  # Set manually in dashboard
+      - key: BOT_TOKEN
+        sync: false
+      - key: ADMIN_IDS
+        sync: false
+      - key: SHEETS_ID
+        sync: false
+      - key: SHEETS_CREDS
+        sync: false
+      - key: LOG_LEVEL
+        value: INFO
+      - key: USE_POLLING
+        value: false
+    
+    disk:
+      name: bot-data
+      mountPath: /app/data
+      sizeGB: 1
+    
+    maxInstanceCount: 1
+    staticPublicPath: /static

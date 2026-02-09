@@ -1,0 +1,14 @@
+aiogram
+aiosqlite
+aiohttp
+fastapi==0.112.0  # обновил с 0.109 (поддержка pydantic 2.9)
+uvicorn[standard]==0.30.1
+python-dotenv==1.0.1
+pydantic==2.9.2
+gspread==6.1.0
+google-auth==2.35.0
+google-auth-oauthlib==1.2.1
+google-auth-httplib2==0.2.1
+httplib2==0.22.0
+psutil==6.1.0  # 7.2.2 может конфликтовать
+# resource>=0.2.0  ← УБРАЛ: локальный, pip сам найдёт в проекте
