@@ -10,7 +10,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
 
 
-from config import DISTRICTS, CATEGORIES, ADMIN_IDS
+from config import DISTRICTS, CATEGORIES, ADMIN_IDS, MODERATOR_USERNAME
 from states import MasterRegistration, MasterRateClient, MasterEdit
 from keyboards import (
     get_master_districts_keyboard,
@@ -147,7 +147,7 @@ async def master_reg_name(message: Message, state: FSMContext, user: dict = None
     if _is_back(message.text):
         # Go back to main menu
         from keyboards import get_main_menu_keyboard
-        text = get_text("main_menu", lang)
+        text = get_text("main_menu", lang, moderator=MODERATOR_USERNAME)
         
         await replace_sticker(message, state, StickerEvent.CATEGORIES)
         await message.answer(text, reply_markup=await get_main_menu_keyboard(user=user))
@@ -187,7 +187,7 @@ async def master_reg_phone(message: Message, state: FSMContext, user: dict = Non
         if existing_master.get('user_id') == -1:
             # Handle unlinked master profile
             # Point to admins using tg://user?id=... format as we only have IDs in config
-            admin_links = '@philipp1993'#"\n".join([f'<a href="tg://user?id={aid}">👨‍💼moder{aid}</a>' for aid in ADMIN_IDS])
+            admin_links = MODERATOR_USERNAME #"\n".join([f'<a href="tg://user?id={aid}">👨‍💼moder{aid}</a>' for aid in ADMIN_IDS])
             text = get_text("claim_master_prompt", lang, admin_links=admin_links)
             
             await state.update_data(claim_master_id=existing_master['id'])
@@ -388,7 +388,7 @@ async def master_claim_contact(message: Message, state: FSMContext, user: dict =
 async def master_claim_text(message: Message, state: FSMContext, user: dict = None):
     """Remind to share contact during claiming process"""
     lang = user.get('language', 'ru') if user else 'ru'
-    admin_links = ", ".join([f'<a href="tg://user?id={aid}">👨‍💼moder{aid}</a>' for aid in ADMIN_IDS])
+    admin_links = MODERATOR_USERNAME
     await message.answer(
         get_text("claim_master_prompt", lang, admin_links=admin_links),
         reply_markup=get_share_phone_keyboard(lang),

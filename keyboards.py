@@ -280,6 +280,7 @@ def get_master_profile_keyboard(master_id, lang: str = "ru"):
             InlineKeyboardButton(text=get_text("master_reviews_btn", lang), callback_data=f"master_reviews_{master_id}"),
         ],
         [InlineKeyboardButton(text=get_text("btn_reputation", lang), callback_data=f"master_reputation_{master_id}")],
+        [InlineKeyboardButton(text=get_text("btn_report", lang), callback_data=f"master_report_{master_id}")],
         [InlineKeyboardButton(text=get_text("btn_back", lang), callback_data="back_to_results")], 
     ])
 

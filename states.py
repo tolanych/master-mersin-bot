@@ -91,3 +91,6 @@ class MasterEdit(StatesGroup):
     districts = State()
     description = State()
     confirmation = State()
+
+class ClientReport(StatesGroup):
+    waiting_text = State()

@@ -1,0 +1,47 @@
+services:
+  bot:
+    build: .
+    container_name: mersin_bot
+    restart: unless-stopped
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/mersin_bot
+    ports:
+      - "8008:8008"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./certs:/app/certs
+
+  db:
+    image: postgres:15-alpine
+    container_name: mersin_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=mersin_bot
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    ports:
+      - "9443:9443"
+      - "9000:9000"
+
+volumes:
+  pg_data:
+  portainer_data:

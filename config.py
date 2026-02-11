@@ -13,9 +13,13 @@ WEBHOOK_URL = os.getenv("WEBHOOK_URL", "")  # https://yourdomain.onrender.com (n
 PORT = int(os.getenv("PORT", 8000))
 ADMIN_IDS = list(map(int, os.getenv("ADMIN_IDS", "").split(","))) if os.getenv("ADMIN_IDS") else []
 
+# ====== Payment & Moderation ======
+PAYMENT_IBAN = os.getenv("PAYMENT_IBAN", "TR00 0000 0000 0000 0000 0000 00")
+PAYMENT_RECIPIENT = os.getenv("PAYMENT_RECIPIENT", "MASTER MERSIN")
+MODERATOR_USERNAME = os.getenv("MODERATOR_USERNAME", "@moderator")
+
 # ====== Database ======
-DB_PATH = os.getenv("DB_PATH", "./data/bot.db")
-os.makedirs(os.path.dirname(DB_PATH) or ".", exist_ok=True)
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/mersin_bot")
 
 # ====== Google Sheets ======
 SHEETS_CREDS_JSON = os.getenv("SHEETS_CREDS", "{}")  # Service account JSON as string

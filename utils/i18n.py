@@ -2,7 +2,7 @@
 # utils/i18n.py — Multilingual Support
 # ================================
 
-from config import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES
+from config import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES, MODERATOR_USERNAME
 
 MESSAGES = {
     "ru": {
@@ -23,7 +23,7 @@ MESSAGES = {
         "menu_language": "🌍 Язык",
         "menu_my_orders": "📋 Мои заявки",
         "menu_premium": "💎 Премиум статус",
-        "main_menu": "👋 Добро пожаловать в Мастер Мерсин!\nПоможем быстро найти проверенных мастеров или получать новые заказы рядом с вами.\nВыберите действие ниже:\n🔧 Найти мастера — если нужен специалист\n📦 Мои заявки — история и статусы заказов клиента\n⭐️ Стать мастером — получайте клиентов\n👤 Мой профиль — управление вашим аккаунтом\nМы рядом и всегда на связи 🤝",
+        "main_menu": "👋 Добро пожаловать в Мастер Мерсин!\nПоможем быстро найти проверенных мастеров или получать новые заказы рядом с вами.\nВыберите действие ниже:\n🔧 Найти мастера — если нужен специалист\n📦 Мои заявки — история и статусы заказов клиента\n⭐️ Стать мастером — получайте клиентов\n👤 Мой профиль — управление вашим аккаунтом\nМы рядом и всегда на связи 🤝\n\nСвязь: {moderator}",
         "field_status": "Статус",
         "status_pending": "⏳ На модерации",
         "status_active_free": "✅ Активен (бесплатно)",
@@ -55,6 +55,9 @@ MESSAGES = {
         "btn_send": "✅ Отправить",
         "btn_remind": "🔁 Напомнить",
         "btn_reputation": "📊 Репутация",
+        "btn_report": "⚠️ Пожаловаться",
+        "report_text_prompt": "Опишите вашу жалобу/проблему:",
+        "report_submitted": "Ваша жалоба принята. Мы разберемся.",
         "satisfied_clients_text": "🟢 {percent}% клиентов довольны.",
         "field_orders_count": "заказов",
 
@@ -138,21 +141,21 @@ MESSAGES = {
         "master_claimed": "✅ Профиль мастера успешно привязан к вашему аккаунту!",
         "phone_mismatch": "❌ Номер телефона не совпадает с номером в профиле мастера.",
         
-        "help": """<b>📚 Справка</b>
-
-/start — Главное меню
-/profile — Ваш профиль
-/orders — Ваши заказы
-/lang — Выбрать язык
-/help — Эта справка
-
-<b>Как работает бот:</b>
-1️⃣ Выберите район и услугу
-2️⃣ Выберите мастера из списка
-3️⃣ Начните ремонт
-4️⃣ По окончании оставьте отзыв с рейтингом
-
-Проблемы? Напишите @admin_mersin""",
+        "help": f"""<b>📚 Справка</b>
+ 
+ /start — Главное меню
+ /profile — Ваш профиль
+ /orders — Ваши заказы
+ /lang — Выбрать язык
+ /help — Эта справка
+ 
+ <b>Как работает бот:</b>
+ 1️⃣ Выберите район и услугу
+ 2️⃣ Выберите мастера из списка
+ 3️⃣ Начните ремонт
+ 4️⃣ По окончании оставьте отзыв с рейтингом
+ 
+ Проблемы? Напишите {MODERATOR_USERNAME}""",
         
         "error": "❌ Произошла ошибка. Попробуйте позже.",
         "description_too_long": "❌ Описание слишком длинное (макс. {limit} символов). Сейчас: {length}",
@@ -286,10 +289,10 @@ MESSAGES = {
         "premium_title": "💎 <b>Премиум-статус</b>",
         "premium_info": "Премиум помогает вам получать больше клиентов и заказов без лишней конкуренции.\nЧто вы получаете:\n🚀 Выше в списке — клиенты видят вас первыми\n⭐️ Заметный профиль — больше доверия и откликов\n📈 Больше заявок — в среднем до 3× больше обращений\nСтоимость — 500 ₺ в месяц.\nПодключите Премиум и зарабатывайте стабильнее.",
         "premium_active_until": "Ваш премиум статус активен до: <b>{date}</b>",
-        "premium_buy_info": "💳 <b>Реквизиты для оплаты:</b>\n\nIBAN: <code>TR00 0000 0000 0000 0000 0000 00</code>\nПолучатель: MASTER MERSIN\n\n⚠️ В назначении платежа <u>ОБЯЗАТЕЛЬНО</u> укажите: <code>masterm_{user_id}</code>\n\nИли просто пришлите скриншот или PDF-файл оплаты в этот чат для идентификации платежа.",
+        "premium_buy_info": "💳 <b>Реквизиты для оплаты:</b>\n\nIBAN: <code>{iban}</code>\nПолучатель: {recipient}\n\n⚠️ В назначении платежа <u>ОБЯЗАТЕЛЬНО</u> укажите: <code>masterm_{user_id}</code>\n\nИли просто пришлите скриншот или PDF-файл оплаты в этот чат для идентификации платежа.",
         "premium_screenshot_sent": "✅ Файл оплаты отправлен администратору. Мы проверим оплату в ближайшее время.",
         "premium_payment_ftype": "Пожалуйста, отправьте скриншот или PDF-файл оплаты.",
-        "premium_technical_issues": "Если есть какие-то технические проблемы с оплатой, напишите аккаунту @mastermersin1488",
+        "premium_technical_issues": f"Если есть какие-то технические проблемы с оплатой, напишите аккаунту {MODERATOR_USERNAME}",
         "btn_buy_premium": "💳 Купить премиум",
         "btn_i_paid": "✅ Я оплатил",
         "admin_premium_payment": "💎 <b>Новая заявка на Премиум!</b>\n\nМастер: {name}\nID пользователя: <code>{user_id}</code>\nТелефон: {phone}",
@@ -795,7 +798,7 @@ MESSAGES = {
         "menu_language": "🌍 Dil",
         "menu_my_orders": "📋 Siparişlerim",
         "menu_premium": "💎 Premium durum",
-        "main_menu": "👋 Master Mersin’e hoş geldiniz!\nYakınınızdaki güvenilir ustaları kolayca bulun ya da yeni işler alın.\nAşağıdan bir seçenek seçin:\n🔧 Usta bul — hizmet ara\n📦 Siparişlerim — geçmiş ve aktif işler\n⭐️ Usta ol — müşteri kazanmaya başla\n👤 Profilim — hesabını yönet\nHer zaman yanınızdayız 🤝",
+        "main_menu": "👋 Master Mersin’e hoş geldiniz!\nYakınınızdaki güvenilir ustaları kolayca bulun ya da yeni işler alın.\nAşağıdan bir seçenek seçin:\n🔧 Usta bul — hizmet ara\n📦 Siparişlerim — geçmiş ve aktif işler\n⭐️ Usta ol — müşteri kazanmaya başla\n👤 Profilim — hesabını yönet\nHer zaman yanınızdayız 🤝\n\nİletişim: {moderator}",
         "field_status": "Durum",
         "status_pending": "⏳ Onay bekliyor",
         "status_active_free": "✅ Aktif (ücretsiz)",
@@ -908,21 +911,21 @@ MESSAGES = {
         "master_claimed": "✅ Usta profili hesabınıza başarıyla bağlandı!",
         "phone_mismatch": "❌ Telefon numarası usta profilindeki numara ile eşleşmiyor.",
         
-        "help": """<b>📚 Yardım</b>
-
-/start — Ana menü
-/profile — Profiliniz
-/orders — Siparişleriniz
-/lang — Dil seçin
-/help — Bu yardım
-
-<b>Bot nasıl çalışır:</b>
-1️⃣ Bölge ve hizmeti seçin
-2️⃣ Listeden usta seçin
-3️⃣ Onarıma başlayın
-4️⃣ Bittiğinde puan ve yorum yapın
-
-Sorun mu yaşıyorsunuz? @admin_mersin yazın""",
+        "help": f"""<b>📚 Yardım</b>
+ 
+ /start — Ana menü
+ /profile — Profiliniz
+ /orders — Siparişleriniz
+ /lang — Dil seçin
+ /help — Bu yardım
+ 
+ <b>Bot nasıl çalışır:</b>
+ 1️⃣ Bölge ve hizmeti seçin
+ 2️⃣ Listeden usta seçin
+ 3️⃣ Onarıma başlayın
+ 4️⃣ Bittiğinde puan ve yorum yapın
+ 
+ Sorun mu yaşıyorsunuz? {MODERATOR_USERNAME} yazın""",
         
         "error": "❌ Bir hata oluştu. Lütfen sonra tekrar deneyin.",
         "description_too_long": "❌ Açıklama çok uzun (en fazla {limit} karakter). Şu an: {length}",
@@ -1056,10 +1059,10 @@ Sorun mu yaşıyorsunuz? @admin_mersin yazın""",
         "premium_title": "💎 <b>Premium Statü</b>",
         "premium_info": "Premium ile daha fazla müşteriye ulaşın ve daha çok sipariş alın.\nAvantajlarınız:\n🚀 Listede üst sıralarda görünürsünüz — müşteriler sizi önce görür\n⭐️ Öne çıkan profil — daha fazla güven ve geri dönüş\n📈 Daha çok talep — ortalama 3 kat daha fazla başvuru\nÜcret: aylık 500 ₺.\nPremium’a geçin, kazancınızı artırın.",
         "premium_active_until": "Premium durumunuz şu tarihe kadar aktiv: <b>{date}</b>",
-        "premium_buy_info": "💳 <b>Ödeme Bilgileri:</b>\n\nIBAN: <code>TR00 0000 0000 0000 0000 0000 00</code>\nAlıcı: MASTER MERSIN\n\n⚠️ Ödeme açıklama kısmına <u>MUTLAK</u> şunu yazın: <code>masterm_{user_id}</code>\n\nVeya ödemeyi tanımlamamız için buraya dekont veya PDF dosyası gönderin.",
+        "premium_buy_info": "💳 <b>Ödeme Bilgileri:</b>\n\nIBAN: <code>{iban}</code>\nAlıcı: {recipient}\n\n⚠️ Ödeme açıklama kısmına <u>MUTLAK</u> şunu yazın: <code>masterm_{user_id}</code>\n\nVeya ödemeyi tanımlamamız için buraya dekont veya PDF dosyası gönderin.",
         "premium_screenshot_sent": "✅ Ödeme dosyası yöneticiye gönderildi. Ödemeyi en kısa sürede kontrol edeceğiz.",
         "premium_payment_ftype": "Lütfen ödeme dekontunu veya PDF dosyasını gönderin.",
-        "premium_technical_issues": "Ödeme ile ilgili teknik bir sorun varsa @mastermersin1488 adresine yazın",
+        "premium_technical_issues": f"Ödeme ile ilgili teknik bir sorun varsa {MODERATOR_USERNAME} adresine yazın",
         "btn_buy_premium": "💳 Premium Satın Al",
         "btn_i_paid": "✅ Ödedim",
         "admin_premium_payment": "💎 <b>Yeni Premium Talebi!</b>\n\nUsta: {name}\nKullanıcı ID: <code>{user_id}</code>\nTelefon: {phone}",
@@ -1565,7 +1568,7 @@ Sorun mu yaşıyorsunuz? @admin_mersin yazın""",
         "menu_language": "🌍 Language",
         "menu_my_orders": "📋 My Orders",
         "menu_premium": "💎 Premium Status",
-        "main_menu": "👋 Welcome to Master Mersin!\nWe help you quickly find verified masters or get new orders near you.\nChoose an action below:\n🔧 Find a Master — search for services\n📦 My Orders — history and status of client orders\n⭐️ Become a Master — start getting clients\n👤 My Profile — manage your account\nWe are nearby and always in touch 🤝",
+        "main_menu": "👋 Welcome to Master Mersin!\nWe help you quickly find verified masters or get new orders near you.\nChoose an action below:\n🔧 Find a Master — search for services\n📦 My Orders — history and status of client orders\n⭐️ Become a Master — start getting clients\n👤 My Profile — manage your account\nWe are nearby and always in touch 🤝\n\nContact: {moderator}",
         "field_status": "Status",
         "status_pending": "⏳ Pending Approval",
         "status_active_free": "✅ Active (Free)",
@@ -1678,7 +1681,7 @@ Sorun mu yaşıyorsunuz? @admin_mersin yazın""",
         "master_claimed": "✅ Master profile successfully linked to your account!",
         "phone_mismatch": "❌ Phone number does not match the number in the master profile.",
         
-        "help": "<b>📚 Help</b>\n\n/start — Main Menu\n/profile — Your Profile\n/orders — Your Orders\n/lang — Choose Language\n/help — This Help\n\n<b>How the bot works:</b>\n1️⃣ Select district and service\n2️⃣ Select a master from the list\n3️⃣ Start repair\n4️⃣ Leave a review with rating after completion\n\nProblems? Write to @admin_mersin",
+        "help": f"<b>📚 Help</b>\n\n/start — Main Menu\n/profile — Your Profile\n/orders — Your Orders\n/lang — Choose Language\n/help — This Help\n\n<b>How the bot works:</b>\n1️⃣ Select district and service\n2️⃣ Select a master from the list\n3️⃣ Start repair\n4️⃣ Leave a review with rating after completion\n\nProblems? Write to {MODERATOR_USERNAME}",
         
         "error": "❌ An error occurred. Please try again later.",
         "description_too_long": "❌ Description too long (max {limit} chars). Currently: {length}",
@@ -1812,10 +1815,10 @@ Sorun mu yaşıyorsunuz? @admin_mersin yazın""",
         "premium_title": "💎 <b>Premium Status</b>",
         "premium_info": "Premium helps you get more clients and orders without extra competition.\nWhat you get:\n🚀 Higher in the list — clients see you first\n⭐️ Prominent profile — more trust and responses\n📈 More requests — on average 3x more inquiries\nCost — 500 ₺ per month.\nActivate Premium and earn more steadily.",
         "premium_active_until": "Your Premium status is active until: <b>{date}</b>",
-        "premium_buy_info": "💳 <b>Payment Details:</b>\n\nIBAN: <code>TR00 0000 0000 0000 0000 0000 00</code>\nRecipient: MASTER MERSIN\n\n⚠️ In the payment description, you <u>MUST</u> specify: <code>masterm_{user_id}</code>\n\nOr just send a screenshot or PDF file of the payment to this chat for payment identification.",
+        "premium_buy_info": "💳 <b>Payment Details:</b>\n\nIBAN: <code>{iban}</code>\nRecipient: {recipient}\n\n⚠️ In the payment description, you <u>MUST</u> specify: <code>masterm_{user_id}</code>\n\nOr just send a screenshot or PDF file of the payment to this chat for payment identification.",
         "premium_screenshot_sent": "✅ Payment file sent to administrator. We will verify the payment shortly.",
         "premium_payment_ftype": "Please send a payment screenshot or PDF file.",
-        "premium_technical_issues": "If there are any technical issues with payment, write to @mastermersin1488",
+        "premium_technical_issues": f"If there are any technical issues with payment, write to {MODERATOR_USERNAME}",
         "btn_buy_premium": "💳 Buy Premium",
         "btn_i_paid": "✅ I Paid",
         "admin_premium_payment": "💎 <b>New Premium Request!</b>\n\nMaster: {name}\nUser ID: <code>{user_id}</code>\nPhone: {phone}",

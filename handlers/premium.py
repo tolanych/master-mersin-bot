@@ -8,7 +8,7 @@ from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKe
 from aiogram.fsm.context import FSMContext
 
 import globals
-from config import ADMIN_IDS
+from config import ADMIN_IDS, PAYMENT_IBAN, PAYMENT_RECIPIENT, MODERATOR_USERNAME
 from states import MasterPremium
 from keyboards import get_premium_keyboard, get_main_menu_keyboard
 from utils.i18n import get_text
@@ -72,7 +72,7 @@ async def premium_buy(callback: CallbackQuery, state: FSMContext, user: dict = N
     """Show payment details"""
     lang = user.get('language', 'ru') if user else 'ru'
     
-    text = get_text("premium_buy_info", lang, user_id=user['id'])
+    text = get_text("premium_buy_info", lang, user_id=user['id'], iban=PAYMENT_IBAN, recipient=PAYMENT_RECIPIENT)
     
     await callback.message.edit_text(
         text,
@@ -155,7 +155,7 @@ async def process_premium_payment_proof(message: Message, state: FSMContext, use
     # Return to main menu
     await replace_sticker(message, state, StickerEvent.CATEGORIES)
     await message.answer(
-        get_text("main_menu", lang), 
+        get_text("main_menu", lang, moderator=MODERATOR_USERNAME), 
         reply_markup=await get_main_menu_keyboard(user=user)
     )
     await clear_state_preserve_sticker(state)
@@ -167,7 +167,7 @@ async def process_premium_non_proof(message: Message, state: FSMContext, user: d
     if message.text and message.text.lower() in ["назад", "back", "geri", "↩️ назад"]:
         await replace_sticker(message, state, StickerEvent.CATEGORIES)
         await message.answer(
-            get_text("main_menu", lang), 
+            get_text("main_menu", lang, moderator=MODERATOR_USERNAME), 
             reply_markup=await get_main_menu_keyboard(user=user)
         )
         await clear_state_preserve_sticker(state)

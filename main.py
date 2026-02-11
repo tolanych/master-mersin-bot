@@ -17,7 +17,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 
 from middlewares.order_check import OrderCheckMiddleware
 
-from config import BOT_TOKEN, WEBHOOK_URL, ADMIN_IDS, PORT, DB_PATH
+from config import BOT_TOKEN, WEBHOOK_URL, ADMIN_IDS, PORT
 import config
 from database import Database
 from services.user_service import init_user_service
@@ -69,9 +69,9 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("🚀 Bot starting...")
     
-    # Initialize database (sync init)
-    globals.db = Database(DB_PATH)
-    globals.db.init()
+    # Initialize database (async init)
+    globals.db = Database(config.DATABASE_URL)
+    await globals.db.init()
     
     # Initialize user service
     globals.user_service = init_user_service(globals.db)
@@ -185,9 +185,9 @@ async def run_polling():
     """Run bot with long polling (for local testing)"""
     logger.info("🚀 Bot starting (polling mode)...")
     
-    # Initialize database (sync init)
-    globals.db = Database(DB_PATH)
-    globals.db.init()
+    # Initialize database (async init)
+    globals.db = Database(config.DATABASE_URL)
+    await globals.db.init()
     
     # Initialize user service
     globals.user_service = init_user_service(globals.db)
@@ -232,6 +232,25 @@ async def run_polling():
         await globals.db.close()
 
 # ====== Entry point ======
+def generate_self_signed_cert(cert_path, key_path):
+    import subprocess
+    import os
+    
+    os.makedirs(os.path.dirname(cert_path), exist_ok=True)
+    
+    if not os.path.exists(cert_path) or not os.path.exists(key_path):
+        logger.info("🔐 Generating self-signed SSL certificates...")
+        try:
+            subprocess.run([
+                "openssl", "req", "-x509", "-newkey", "rsa:4096", 
+                "-keyout", key_path, "-out", cert_path, 
+                "-days", "365", "-nodes", 
+                "-subj", "/C=TR/ST=Mersin/L=Mersin/O=MersinMasters/OU=Bot/CN=localhost"
+            ], check=True)
+            logger.info(f"✅ Certificates generated: {cert_path}, {key_path}")
+        except Exception as e:
+            logger.error(f"❌ Failed to generate certificates: {e}")
+
 if __name__ == "__main__":
     import os
     
@@ -240,13 +259,20 @@ if __name__ == "__main__":
         logger.info("📱 Running in POLLING mode (local)")
         asyncio.run(run_polling())
     else:
-        # Render webhook mode
-        logger.info("🌐 Running in WEBHOOK mode (Render)")
+        # Webhook mode (Docker/Render)
+        logger.info("🌐 Running in WEBHOOK mode")
+        
+        cert_path = os.getenv("SSL_CERT_PATH", "./certs/cert.pem")
+        key_path = os.getenv("SSL_KEY_PATH", "./certs/key.pem")
+        
+        # Generate certs if they don't exist
+        generate_self_signed_cert(cert_path, key_path)
+        
         uvicorn.run(
             app,
             host="0.0.0.0",
             port=PORT,
             log_level="info",
-            #ssl_keyfile="../localhost+2-key.pem", 
-            #ssl_certfile="../localhost+2.pem"
+            ssl_keyfile=key_path, 
+            ssl_certfile=cert_path
         )

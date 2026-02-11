@@ -13,8 +13,8 @@ from aiogram.filters import Command
 from aiogram import flags
 
 
-from config import DISTRICTS, CATEGORIES, ADMIN_IDS
-from states import ClientSearch, ClientFindMaster, ClientConcierge, ClientReview, ClientAddMaster, ClientPhoneVerification, ClientChangePhone
+from config import DISTRICTS, CATEGORIES, ADMIN_IDS, MODERATOR_USERNAME
+from states import ClientSearch, ClientFindMaster, ClientConcierge, ClientReview, ClientAddMaster, ClientPhoneVerification, ClientChangePhone, ClientReport
 import globals
 from utils.language_utils import set_user_language
 from keyboards import (
@@ -247,9 +247,9 @@ async def set_language(callback: CallbackQuery, state: FSMContext, user: dict = 
 
     # Always show main menu (role selection is removed)
     if should_resend:
-        await callback.message.answer(get_text("main_menu", new_lang), reply_markup=await get_main_menu_keyboard(user=user))
+        await callback.message.answer(get_text("main_menu", new_lang, moderator=MODERATOR_USERNAME), reply_markup=await get_main_menu_keyboard(user=user))
     else:
-        await callback.message.edit_text(get_text("main_menu", new_lang), reply_markup=await get_main_menu_keyboard(user=user))
+        await callback.message.edit_text(get_text("main_menu", new_lang, moderator=MODERATOR_USERNAME), reply_markup=await get_main_menu_keyboard(user=user))
     
     # Preserve sticker_msg_id when clearing state so replace_sticker can delete old stickers
     await clear_state_preserve_sticker(state)
@@ -268,9 +268,9 @@ async def back_main_menu(callback: CallbackQuery, state: FSMContext, user: dict 
         should_resend = False
 
     if should_resend:
-        await callback.message.answer(get_text("main_menu", lang), reply_markup=await get_main_menu_keyboard(user=user))
+        await callback.message.answer(get_text("main_menu", lang, moderator=MODERATOR_USERNAME), reply_markup=await get_main_menu_keyboard(user=user))
     else:
-        await callback.message.edit_text(get_text("main_menu", lang), reply_markup=await get_main_menu_keyboard(user=user))
+        await callback.message.edit_text(get_text("main_menu", lang, moderator=MODERATOR_USERNAME), reply_markup=await get_main_menu_keyboard(user=user))
     
     # Preserve sticker_msg_id when clearing state so replace_sticker can delete old stickers
     await clear_state_preserve_sticker(state)
@@ -673,8 +673,13 @@ async def show_completed_orders_page(callback: CallbackQuery, user: dict, page: 
     text = get_text("orders_history_title", lang) + "\n\n"
     
     for order in completed_orders:
-        date_str = order['created_at'].split("T")[0]
-        time_str = order['created_at'].split("T")[1].split(".")[0]
+        dt = order['created_at']
+        if isinstance(dt, str):
+            date_str = dt.split("T")[0]
+            time_str = dt.split("T")[1].split(".")[0]
+        else:
+            date_str = dt.strftime("%Y-%m-%d")
+            time_str = dt.strftime("%H:%M:%S")
         
         # Resolve category name
         cat_key = order.get('category_key')
@@ -985,6 +990,49 @@ async def view_master_reviews(callback: CallbackQuery, state: FSMContext, user: 
             [InlineKeyboardButton(text=get_text("btn_back", lang), callback_data=f"master_profile_{master_id}")]
         ])
     )
+
+# ====== REPORT MASTER ======
+@router.callback_query(F.data.startswith("master_report_"))
+async def report_master_prompt(callback: CallbackQuery, state: FSMContext, user: dict = None):
+    """Prompt to report master"""
+    lang = user.get('language', 'ru') if user else 'ru'
+    master_id = int(callback.data.split("_")[2])
+    
+    await state.update_data(report_master_id=master_id)
+    
+    text = get_text("report_text_prompt", lang)
+    # Add back button to profile
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text=get_text("btn_back", lang), callback_data=f"master_profile_{master_id}")]
+    ])
+    
+    await callback.message.edit_text(text, reply_markup=kb)
+    await state.set_state(ClientReport.waiting_text)
+
+@router.message(ClientReport.waiting_text)
+async def report_master_submit(message: Message, state: FSMContext, user: dict = None):
+    """Submit report"""
+    lang = user.get('language', 'ru') if user else 'ru'
+    data = await state.get_data()
+    master_id = data.get("report_master_id")
+    text = (message.text or "").strip()
+    
+    if not text:
+        await message.answer("Пожалуйста, опишите проблему текстом.", reply_markup=get_remove_keyboard())
+        return
+
+    # Save to DB
+    if master_id:
+        await db.create_complaint(user['id'], master_id, text)
+        
+    await message.answer(
+        get_text("report_submitted", lang),
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text=get_text("btn_menu", lang), callback_data="back_main_menu")]
+        ])
+    )
+    await state.clear()
+
 
 # ====== ORDER START ======
 @router.callback_query(F.data.startswith("order_start_"))
@@ -1369,7 +1417,7 @@ async def add_master_phone(message: Message, state: FSMContext, user: dict = Non
             print(existing_master.get('user_id'))
             # Handle unlinked master profile
             # Point to admins using tg://user?id=... format as we only have IDs in config
-            admin_links = '@philipp1993'#", ".join([f'<a href="tg://user?id={aid}">👨‍💼moder{aid}</a>' for aid in ADMIN_IDS])
+            admin_links = MODERATOR_USERNAME #", ".join([f'<a href="tg://user?id={aid}">👨‍💼moder{aid}</a>' for aid in ADMIN_IDS])
             text = get_text("claim_master_prompt", lang, admin_links=admin_links)
             
             await state.update_data(claim_master_id=existing_master['id'], claim_master_phone=phone)
@@ -1601,9 +1649,13 @@ async def client_my_reviews(callback: CallbackQuery, state: FSMContext, user: di
     else:
         text = get_text("my_reviews_title", lang) + "\n\n"
         for review in reviews[:10]:
-            date_str = review.get('completed_at', '')
-            if date_str:
-                date_str = date_str.split("T")[0]
+            dt = review.get('completed_at')
+            if isinstance(dt, str):
+                date_str = dt.split("T")[0]
+            elif dt:
+                date_str = dt.strftime("%Y-%m-%d")
+            else:
+                date_str = ""
             
             cat_name = get_category_name(review.get('category_key', ''), lang) if review.get('category_key') else '-'
             

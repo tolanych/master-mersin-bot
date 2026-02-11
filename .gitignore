@@ -35,6 +35,7 @@ wheels/
 .env
 .env.local
 .env.*.local
+*.pem
 
 # Database
 data/
