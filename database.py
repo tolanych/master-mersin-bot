@@ -660,17 +660,28 @@ class Database:
                 for cid in criterion_ids:
                     await conn.execute("INSERT INTO reputation_votes (from_client, order_id, criterion_id) VALUES ($1, $2, $3)", from_client, order_id, cid)
 
-    async def get_user_reputation_stats(self, user_id: int):
-        master = await self.get_master_by_user_id(user_id)
+    async def get_user_reputation_stats(self, user_id: int = None, master_id: int = None):
+        """
+        Get reputation stats for a user (as master and as client).
+        Supports three cases:
+        1. Client (pass user_id)
+        2. Master linked to user (pass user_id or both)
+        3. Master not linked to user (pass master_id, user_id can be -1 or None)
+        """
+        # If master_id not provided, try to find it via user_id
+        if master_id is None and user_id is not None and user_id != -1:
+            master = await self.get_master_by_user_id(user_id)
+            if master:
+                master_id = master['id']
+
         master_stats = {}
         master_total = 0
         
         all_master_criteria = await self.get_criteria(role_client=True)
         for crit in all_master_criteria:
-            master_stats[crit['code_key']] = {'percent': 0.0, 'count': 0} # Fix structure from original code
+            master_stats[crit['code_key']] = {'percent': 0.0, 'count': 0}
 
-        if master:
-            master_id = master['id']
+        if master_id is not None and master_id != -1:
             master_total = await self.fetchval("""
                 SELECT COUNT(DISTINCT order_id) 
                 FROM reputation_votes rv
@@ -693,32 +704,34 @@ class Database:
                         'count': row['count']
                     }
 
-        client_total = await self.fetchval("""
-            SELECT COUNT(DISTINCT order_id) 
-            FROM reputation_votes rv
-            JOIN orders o ON rv.order_id = o.id
-            WHERE o.client_id = $1 AND rv.from_client = FALSE
-        """, user_id)
-        
+        client_total = 0
         client_stats = {}
         all_client_criteria = await self.get_criteria(role_client=False)
         for crit in all_client_criteria:
             client_stats[crit['code_key']] = {'percent': 0.0, 'count': 0}
 
-        if client_total > 0:
-            rows = await self.fetch("""
-                SELECT rc.code_key, COUNT(rv.id) as count
-                FROM reputation_criteria rc
-                JOIN reputation_votes rv ON rc.id = rv.criterion_id
+        if user_id is not None and user_id != -1:
+            client_total = await self.fetchval("""
+                SELECT COUNT(DISTINCT order_id) 
+                FROM reputation_votes rv
                 JOIN orders o ON rv.order_id = o.id
                 WHERE o.client_id = $1 AND rv.from_client = FALSE
-                GROUP BY rc.id, rc.code_key
             """, user_id)
-            for row in rows:
-                client_stats[row['code_key']] = {
-                    'percent': round((row['count'] / client_total) * 100, 1),
-                    'count': row['count']
-                }
+            
+            if client_total > 0:
+                rows = await self.fetch("""
+                    SELECT rc.code_key, COUNT(rv.id) as count
+                    FROM reputation_criteria rc
+                    JOIN reputation_votes rv ON rc.id = rv.criterion_id
+                    JOIN orders o ON rv.order_id = o.id
+                    WHERE o.client_id = $1 AND rv.from_client = FALSE
+                    GROUP BY rc.id, rc.code_key
+                """, user_id)
+                for row in rows:
+                    client_stats[row['code_key']] = {
+                        'percent': round((row['count'] / client_total) * 100, 1),
+                        'count': row['count']
+                    }
         
         return {
             'as_master': {

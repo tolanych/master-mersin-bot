@@ -898,7 +898,7 @@ async def view_master_reputation(callback: CallbackQuery, state: FSMContext, use
         await callback.answer("❌ Мастер не найден", show_alert=True)
         return
         
-    rep_data = await db.get_user_reputation_stats(master['user_id'])
+    rep_data = await db.get_user_reputation_stats(user_id=master['user_id'], master_id=master_id)
     m_rep = rep_data.get('as_master', {})
     m_stats = m_rep.get('stats', {})
     
